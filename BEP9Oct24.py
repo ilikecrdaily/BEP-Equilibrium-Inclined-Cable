@@ -14,26 +14,30 @@ g = 9.81
 
 """Physical parameters"""
 M = 486.2*1
-A = 1.11e-3
-E = 21e10
-rho = 48.62/A
+A_c = 1.11e-3
+E_c = 21e10
+rho_c = 48.62/A_c
 X_1 = 4
-L = 200
+l_c = 200
 phi = pi/6
-T_0 = 4.64e7
+T_0 = 4.64e5
 
-omega_0 = T_0/(A*E)
-zeta = M*g/(A*E)
-epsilon = rho * g * L / E
+omega_0 = T_0/(A_c*E_c)
+zeta = M*g/(A_c*E_c)
+epsilon = rho_c * g * l_c / E_c
 c = zeta/epsilon
-X_1_star = X_1/L
+X_1_star = X_1/l_c
 
 """Other params"""
 no_of_points = 10001
 
-"""Our model (Cable-TMD model) used to obtain the equilibrium"""
+"""Our model used to obtain the equilibrium"""
 def get_v(x):
-    X = 200 * (1-x)
+    X = l_c/(1+omega_0) * (1-x)
+    L = l_c/(1+omega_0)
+    rho = rho_c * (1+omega_0)
+    A = A_c
+    E = E_c
     if X < X_1:
         return -1/L*(- 3*A*cos(phi)*X*g*rho*(A*((-1/36 + (X_1_star**2 - 4/3*X_1_star + 1/3)*c**2 +
                                             (1/2*X_1_star**2 - 2/3*X_1_star + 1/6)*c)*L**2 + 
@@ -47,14 +51,14 @@ def get_v(x):
     
 """The parabola used in the main paper to estimate the equilibrium"""
 def parab(x):
-    d_c = rho * A * g * L * cos(phi) / (8*T_0)
+    d_c = rho_c * A_c * g * l_c * cos(phi) / (8*T_0)
     return 4 * d_c*x*(1-x)
 
 
 """The approximation for the cable without mass derived in caswita"""
 def caswform(x):
-    v = rho * g * A * L * cos(phi)/(2*T_0)*x*(1-x)* \
-        (1+omega_0-rho*g*A*L*sin(phi)/(6*T_0)*(5-4*x))
+    v = rho_c * g * A_c * l_c * cos(phi)/(2*T_0)*x*(1-x)* \
+        (1-rho_c*g*A_c*l_c*sin(phi)/(6*T_0*(1+omega_0))*(5-4*x))
     return v
     
 
@@ -70,6 +74,8 @@ plt.plot(x, V, '-', color='blue', linewidth=1.0, alpha=0.75, label='Cable-TMD mo
 plt.legend(loc='lower left', bbox_to_anchor=(0,0))
 plt.xlabel('$x$')
 plt.ylabel('$y_c(x)$')
+# plt.xlim(0.97,1)
+# plt.ylim(0,0.003)
 plt.show()
 
 plt.figure(dpi=666)
